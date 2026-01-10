@@ -1,0 +1,60 @@
+<script>
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function addStudent() {
+        let name = document.getElementById("name").value.trim();
+        let roll = document.getElementById("roll").value.trim();
+        let course = document.getElementById("course").value.trim();
+        let email = document.getElementById("email").value.trim();
+
+        if (!name || !roll || !course || !email) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        let student = { name, roll, course, email };
+        students.push(student);
+
+        localStorage.setItem("students", JSON.stringify(students));
+
+        document.getElementById("recentStudent").innerText = name;
+
+        document.getElementById("name").value = "";
+        document.getElementById("roll").value = "";
+        document.getElementById("course").value = "";
+        document.getElementById("email").value = "";
+
+        renderStudents();
+    }
+
+    function renderStudents() {
+        let table = document.getElementById("studentTable");
+        table.innerHTML = "";
+
+        students.forEach(s => {
+            let row = `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.roll}</td>
+                    <td>${s.course}</td>
+                    <td>${s.email}</td>
+                </tr>`;
+            table.innerHTML += row;
+        });
+
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        document.getElementById("totalStudents").innerText = students.length;
+
+        let courses = [...new Set(students.map(s => s.course))];
+        document.getElementById("totalCourses").innerText = courses.length;
+
+        if (students.length === 0) {
+            document.getElementById("recentStudent").innerText = "None";
+        }
+    }
+
+    renderStudents();
+</script>
