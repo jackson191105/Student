@@ -1,48 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Student Management System</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+document.addEventListener("DOMContentLoaded", function () {
 
-<header>
-  <h1>Student Management System</h1>
-</header>
+  let students = JSON.parse(localStorage.getItem("students")) || [];
 
-<div class="container">
-  <h2>Add / Update Student</h2>
+  const form = document.getElementById("studentForm");
+  const table = document.getElementById("studentTable");
+  const studentIdInput = document.getElementById("studentId");
 
-  <form id="studentForm">
-    <input type="hidden" id="studentIndex">
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-    <input type="text" id="name" placeholder="Student Name" required>
-    <input type="number" id="roll" placeholder="Roll Number" required>
-    <input type="text" id="course" placeholder="Course" required>
-    <input type="email" id="email" placeholder="Email" required>
+    const name = document.getElementById("name").value.trim();
+    const roll = document.getElementById("roll").value.trim();
+    const course = document.getElementById("course").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const studentId = studentIdInput.value;
 
-    <button type="submit">Save Student</button>
-  </form>
-</div>
+    if (!name || !roll || !course || !email) {
+      alert("Please fill all fields");
+      return;
+    }
 
-<div class="container">
-  <h2>Student List</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Roll</th>
-        <th>Course</th>
-        <th>Email</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="studentTable"></tbody>
-  </table>
-</div>
+    const studentData = { name, roll, course, email };
 
-<script src="script.js"></script>
+    if (studentId === "") {
+      students.push(studentData);
+    } else {
+      students[studentId] = studentData;
+    }
 
-</body>
-</html>
+    localStorage.setItem("students", JSON.stringify(students));
+    form.reset();
+    studentIdInput.value = "";
+
+    displayStudents();
+  });
+
+  function displayStudents() {
+    table.innerHTML = "";
+
+    students.forEach((student, index) => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${student.name}</td>
+        <td>${student.roll}</td>
+        <td>${student.course}</td>
+        <td>${student.email}</td>
+        <td>
+          <button class="action-btn edit">Edit</button>
+          <button class="action-btn delete">Delete</button>
+        </td>
+      `;
+
+      row.querySelector(".edit").addEventListener("click", () => editStudent(index));
+      row.querySelector(".delete").addEventListener("click", () => deleteStudent(index));
+
+      table.appendChild(row);
+    });
+  }
+
+  function editStudent(index) {
+    const student = students[index];
+    document.getElementById("name").value = student.name;
+    document.getElementById("roll").value = student.roll;
+    document.getElementById("course").value = student.course;
+    document.getElementById("email").value = student.email;
+    studentIdInput.value = index;
+  }
+
+  function deleteStudent(index) {
+    if (confirm("Are you sure?")) {
+      students.splice(index, 1);
+      localStorage.setItem("students", JSON.stringify(students));
+      displayStudents();
+    }
+  }
+
+  displayStudents();
+});
+
