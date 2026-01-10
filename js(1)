@@ -1,0 +1,59 @@
+// Sample data check: Ensure 'students' array exists
+let students = JSON.parse(localStorage.getItem('students')) || [];
+
+function renderTable() {
+    const listBody = document.getElementById('student-list-body');
+    if (!listBody) return; // Error prevention if ID is missing
+
+    listBody.innerHTML = '';
+
+    students.forEach((student, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="menu-container">
+                    <button class="dots-btn" onclick="toggleMenu(event, ${index})">⋮</button>
+                    <div id="dropdown-${index}" class="requirements-dropdown">
+                        <strong style="color:#1a3c6d;">Requirements</strong>
+                        <p>✓ Admission Form</p>
+                        <p>✓ ID Card: ${student.roll ? 'Issued' : 'Pending'}</p>
+                        <p>✓ Fees: Paid</p>
+                    </div>
+                </div>
+            </td>
+            <td>${student.name || 'N/A'}</td>
+            <td>${student.roll || 'N/A'}</td>
+            <td>${student.course || 'N/A'}</td>
+            <td>${student.email || 'N/A'}</td>
+            <td>
+                <button onclick="editStudent(${index})" style="cursor:pointer;">Edit</button>
+            </td>
+        `;
+        listBody.appendChild(row);
+    });
+}
+
+// Function to toggle the menu while stopping event bubbling
+function toggleMenu(event, index) {
+    event.stopPropagation(); // Prevents clicks from closing the menu immediately
+    
+    // Close all other open menus
+    document.querySelectorAll('.requirements-dropdown').forEach(menu => {
+        if (menu.id !== `dropdown-${index}`) {
+            menu.classList.remove('show');
+        }
+    });
+
+    const targetMenu = document.getElementById(`dropdown-${index}`);
+    targetMenu.classList.toggle('show');
+}
+
+// Close the menu if the user clicks anywhere else on the screen
+document.addEventListener('click', () => {
+    document.querySelectorAll('.requirements-dropdown').forEach(menu => {
+        menu.classList.remove('show');
+    });
+});
+
+// Run render on page load
+renderTable();
